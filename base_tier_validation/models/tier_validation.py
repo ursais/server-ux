@@ -325,9 +325,20 @@ class TierValidation(models.AbstractModel):
                 "reviewed_date": fields.Datetime.now(),
             }
         )
-        for review in user_reviews:
-            rec = self.env[review.model].browse(review.res_id)
-            rec._notify_accepted_reviews()
+        reviews_to_notify = user_reviews.filtered(
+            lambda r: r.definition_id.notify_on_accepted
+        )
+        if reviews_to_notify:
+            subscribe = "message_subscribe"
+            if hasattr(self, subscribe):
+                getattr(self, subscribe)(
+                    partner_ids=reviews_to_notify.mapped("reviewer_ids")
+                    .mapped("partner_id")
+                    .ids
+                )
+            for review in reviews_to_notify:
+                rec = self.env[review.model].browse(review.res_id)
+                rec._notify_accepted_reviews()
 
     def _get_requested_notification_subtype(self):
         return "base_tier_validation.mt_tier_validation_requested"
@@ -384,7 +395,10 @@ class TierValidation(models.AbstractModel):
             lambda l: l.sequence in sequences or l.approve_sequence_bypass
         )
         if self.has_comment:
-            return self._add_comment("validate", reviews)
+            user_reviews = reviews.filtered(
+                lambda r: r.status == "pending" and (self.env.user in r.reviewer_ids)
+            )
+            return self._add_comment("validate", user_reviews)
         self._validate_tier(reviews)
         self._update_counter({"review_deleted": True})
 
@@ -431,9 +445,21 @@ class TierValidation(models.AbstractModel):
                 "reviewed_date": fields.Datetime.now(),
             }
         )
-        for review in user_reviews:
-            rec = self.env[review.model].browse(review.res_id)
-            rec._notify_rejected_review()
+
+        reviews_to_notify = user_reviews.filtered(
+            lambda r: r.definition_id.notify_on_rejected
+        )
+        if reviews_to_notify:
+            subscribe = "message_subscribe"
+            if hasattr(self, subscribe):
+                getattr(self, subscribe)(
+                    partner_ids=reviews_to_notify.mapped("reviewer_ids")
+                    .mapped("partner_id")
+                    .ids
+                )
+            for review in reviews_to_notify:
+                rec = self.env[review.model].browse(review.res_id)
+                rec._notify_rejected_review()
 
     def _notify_requested_review_body(self):
         return _("A review has been requested by %s.") % (self.env.user.name)
@@ -501,16 +527,33 @@ class TierValidation(models.AbstractModel):
 
     def restart_validation(self):
         for rec in self:
+            partners_to_notify_ids = False
             if getattr(rec, self._state_field) in self._state_from:
                 to_update_counter = (
                     rec.mapped("review_ids").filtered(lambda a: a.status == "pending")
                     and True
                     or False
                 )
+                reviews_to_notify = rec.review_ids.filtered(
+                    lambda r: r.definition_id.notify_on_restarted
+                )
+                if reviews_to_notify:
+                    partners_to_notify_ids = (
+                        reviews_to_notify.mapped("reviewer_ids")
+                        .mapped("partner_id")
+                        .ids
+                    )
                 rec.mapped("review_ids").unlink()
                 if to_update_counter:
                     self._update_counter({"review_deleted": True})
-            rec._notify_restarted_review()
+            if partners_to_notify_ids:
+                subscribe = "message_subscribe"
+                reviews_to_notify = rec.review_ids.filtered(
+                    lambda r: r.definition_id.notify_on_restarted
+                )
+                if hasattr(self, subscribe):
+                    getattr(self, subscribe)(partner_ids=partners_to_notify_ids)
+                rec._notify_restarted_review()
 
     @api.model
     def _update_counter(self, review_counter):

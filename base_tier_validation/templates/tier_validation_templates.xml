@@ -50,7 +50,7 @@
                         class="btn-icon btn-danger"
                         icon="fa-thumbs-down"
                     />
-                <br /><field name="next_review" />
+                <br /><field name="next_review" readonly="1" />
             </p>
         </div>
         <div
@@ -94,6 +94,7 @@
             <field name="sequence" />
             <field name="requested_by" />
             <field name="status" />
+            <field name="display_status" />
             <field name="todo_by" />
             <field name="done_by" />
             <field name="reviewed_date" />
