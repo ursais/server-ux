@@ -36,7 +36,7 @@ class BaseSubstateMixin(models.AbstractModel):
             res["substate_id"] = (
                 first_rec.substate_id.mail_template_id,
                 {
-                    "auto_delete_message": True,
+                    "auto_delete": True,
                     "subtype_id": self.env["ir.model.data"].xmlid_to_res_id(
                         "mail.mt_note"
                     ),
