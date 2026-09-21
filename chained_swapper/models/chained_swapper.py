@@ -53,13 +53,10 @@ class ChainedSwapper(models.Model):
         string="Groups",
     )
 
-    _sql_constraints = [
-        (
-            "model_id_field_id_unique",
-            "unique (model_id, field_id)",
-            "Model and Field must be unique!",
-        ),
-    ]
+    _model_id_field_id_unique = models.Constraint(
+        'unique (model_id, field_id)',
+        "Model and Field must be unique!",
+    )
 
     @api.depends("model_id")
     def _compute_allowed_field_ids_domain(self):

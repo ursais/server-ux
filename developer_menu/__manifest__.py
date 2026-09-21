@@ -2,7 +2,7 @@
 
 {
     "name": "Developer Menu",
-    "version": "18.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Tools",
     "license": "AGPL-3",
     "summary": "Menu Shortcut for developer usage",

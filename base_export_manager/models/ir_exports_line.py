@@ -152,7 +152,7 @@ class IrExportsLine(models.Model):
     @api.constrains("field1_id", "field2_id", "field3_id", "field4_id")
     def _check_name(self):
         # do also skip the check if label is set or not, when skip_check is set
-        if self._context.get("skip_check"):
+        if self.env.context.get("skip_check"):
             return
         for one in self:
             if not one.label:

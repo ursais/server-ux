@@ -6,7 +6,7 @@
                 class="o_nav_entry"
                 title="QR search"
                 accesskey="q"
-                t-on-click="onClick"
+                t-on-click="this.onClick"
             >
                 <i class="fa fa-qrcode" />
             </button>

@@ -1,7 +1,7 @@
 /* Copyright 2024 Tecnativa - David Vidal
  * Copyright 2024 Tecnativa - Carlos Roca
  * License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). */
-import {Component, markup, onMounted, useState} from "@odoo/owl";
+import { Component, markup, onMounted, proxy } from "@odoo/owl";
 import {AnnouncementDialog} from "../announcement_dialog/announcement_dialog.esm";
 import {Dropdown} from "@web/core/dropdown/dropdown";
 import {DropdownItem} from "@web/core/dropdown/dropdown_item";
@@ -20,7 +20,7 @@ export class AnnouncementMenu extends Component {
         this.orm = useService("orm");
         this.dialogService = useService("dialog");
         const announcements_service = useService("announcementService");
-        this.announcements = useState(announcements_service.announcements);
+        this.announcements = proxy(announcements_service.announcements);
         // When the user logs in we show him his unread announcements
         onMounted(async () => {
             // Let's check if the user just logged in and to decide if we popup the

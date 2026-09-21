@@ -3,7 +3,7 @@
 {
     "name": "Chained Swapper",
     "summary": "Chained Swapper",
-    "version": "18.0.1.0.0",
+    "version": "20.0.1.0.0",
     "development_status": "Mature",
     "author": "Tecnativa, Odoo Community Association (OCA)",
     "category": "Tools",
@@ -11,10 +11,9 @@
     "license": "AGPL-3",
     "depends": ["base"],
     "data": [
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/chained_swapper_views.xml",
-        "wizard/chained_swapper_wizard_views.xml",
-    ],
+        "wizard/chained_swapper_wizard_views.xml"],
     "demo": ["demo/chained_swapper_demo.xml"],
     "uninstall_hook": "uninstall_hook",
 }

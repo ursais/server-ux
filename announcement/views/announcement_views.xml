@@ -162,7 +162,7 @@
                     <t t-name="card">
                         <div class="row mb4">
                             <div class="col-12">
-                                <t t-esc="record.name.value" />
+                                <t t-out="record.name.value" />
                                 <t t-out="record.content.raw_value" />
                             </div>
                         </div>

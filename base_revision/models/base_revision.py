@@ -55,13 +55,10 @@ class BaseRevision(models.AbstractModel):
         for rec in self:
             rec.revision_count = revision_dict.get(rec.id, 0)
 
-    _sql_constraints = [
-        (
-            "revision_unique",
-            "unique(unrevisioned_name, revision_number)",
-            "Reference and revision must be unique.",
-        )
-    ]
+    _revision_unique = models.Constraint(
+        'unique(unrevisioned_name, revision_number)',
+        "Reference and revision must be unique.",
+    )
 
     def copy(self, default=None):
         default = default or {}
@@ -71,7 +68,7 @@ class BaseRevision(models.AbstractModel):
         for rec in revision_records:
             if rec.unrevisioned_name:
                 continue
-            name_field = self._context.get("revision_name_field", "name")
+            name_field = self.env.context.get("revision_name_field", "name")
             rec.write({"unrevisioned_name": rec[name_field]})
         return revision_records
 
@@ -99,7 +96,7 @@ class BaseRevision(models.AbstractModel):
 
     @api.model_create_multi
     def create(self, vals_list):
-        name_field = self._context.get("revision_name_field", "name")
+        name_field = self.env.context.get("revision_name_field", "name")
         for vals in vals_list:
             if "unrevisioned_name" not in vals:
                 vals["unrevisioned_name"] = vals[name_field]

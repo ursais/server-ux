@@ -1,0 +1,5 @@
+id,name,model_id,group_id/id,operation,domain
+ir_filters_employee_rule,ir.filters.multiuser,base.model_ir_filters,base.group_user,cru,"['|',
+            '|', ('user_id', '=', user.id), ('user_ids', 'in', user.id),
+            '&', ('user_id', '=', False), ('user_ids', '=', False),]"
+base.ir_filters_employee_rule,base.ir_filters_employee_rule,,,crud,

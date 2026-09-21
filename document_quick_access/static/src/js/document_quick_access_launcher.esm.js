@@ -1,13 +1,13 @@
 /* @odoo-module */
 
-import {Component} from "@odoo/owl";
+import { Component, usePlugin } from "@odoo/owl";
 import {registry} from "@web/core/registry";
-import {useService} from "@web/core/utils/hooks";
+import { ActionManagerPlugin } from "@web/webclient/actions/action_plugin";
 
 export class DocumentQuickAccessSystrayItem extends Component {
     static template = "document_quick_access_launcher.view.Menu";
     setup() {
-        this.action = useService("action");
+        this.action = usePlugin(ActionManagerPlugin);
     }
     onClick(ev) {
         ev.preventDefault();

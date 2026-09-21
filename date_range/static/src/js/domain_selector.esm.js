@@ -1,10 +1,11 @@
 import {domainFromTreeDateRange, treeFromDomainDateRange} from "./condition_tree.esm";
 
-import {onWillStart, useChildSubEnv} from "@odoo/owl";
+import { onWillStart } from "@odoo/owl";
 import {Domain} from "@web/core/domain";
 import {DomainSelector} from "@web/core/domain_selector/domain_selector";
 import {useService} from "@web/core/utils/hooks";
 import {patch} from "@web/core/utils/patch";
+import { useChildSubEnv } from "@web/owl2/utils";
 
 const ARCHIVED_DOMAIN = `[("active", "in", [True, False])]`;
 
