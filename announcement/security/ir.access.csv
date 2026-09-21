@@ -1,12 +1,12 @@
 id,name,model_id,group_id/id,operation,domain
-announcement_log_rule,Announcement log per user,model_announcement_log,,cud,"[('create_uid','=', user.id)]"
-announcement_log_manager_rule,Announcement log manager,model_announcement_log,announcement.announcemenent_manager,crud,"[(1, '=', 1)]"
-announcement_user_rule,User announcements,model_announcement,base.group_user,crud,"[('active', '=', True), ('allowed_user_ids', 'in', user.id), ('in_date', '=', True)]"
-announcement_manager_rule,Announcement managers,model_announcement,announcement.announcemenent_manager,crud,"[(1, '=', 1)]"
-rule_multi_company_announcement_tag,Announcement Tag multi-company,model_announcement_tag,,crud,"[('company_id', 'in', [False] + company_ids)]"
-access_announcement_management,announcement.manager,model_announcement,announcement.announcemenent_manager,crud,
-access_announcement_user,announcement.user,model_announcement,base.group_user,r,
-access_announcement_log_all,announcement_log_all,model_announcement_log,base.group_user,cr,
-access_read_announcement_wizard,access_read_announcement_wizard,model_read_announcement_wizard,announcemenent_manager,crud,
-access_announcement_tag_management,announcement.tag.manager,model_announcement_tag,announcement.announcemenent_manager,crud,
-access_announcement_tag_user,announcement.tag.user,model_announcement_tag,base.group_user,r,
+announcement_log_rule,Announcement log per user,announcement.log,,cud,"[('create_uid','=', user.id)]"
+announcement_log_manager_rule,Announcement log manager,announcement.log,announcement.announcemenent_manager,crud,"[(1, '=', 1)]"
+announcement_user_rule,User announcements,announcement,base.group_user,crud,"[('active', '=', True), ('allowed_user_ids', 'in', user.id), ('in_date', '=', True)]"
+announcement_manager_rule,Announcement managers,announcement,announcement.announcemenent_manager,crud,"[(1, '=', 1)]"
+rule_multi_company_announcement_tag,Announcement Tag multi-company,announcement.tag,,crud,"[('company_id', 'in', [False] + company_ids)]"
+access_announcement_management,announcement.manager,announcement,announcement.announcemenent_manager,crud,
+access_announcement_user,announcement.user,announcement,base.group_user,r,
+access_announcement_log_all,announcement_log_all,announcement.log,base.group_user,cr,
+access_read_announcement_wizard,access_read_announcement_wizard,read.announcement.wizard,announcemenent_manager,crud,
+access_announcement_tag_management,announcement.tag.manager,announcement.tag,announcement.announcemenent_manager,crud,
+access_announcement_tag_user,announcement.tag.user,announcement.tag,base.group_user,r,
