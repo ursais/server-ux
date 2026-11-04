@@ -134,12 +134,21 @@ class TierReview(models.Model):
 
     @api.model
     def _get_reviewer_fields(self):
-        return ["reviewer_id", "reviewer_group_id", "reviewer_group_id.user_ids"]
+        return [
+            "reviewer_id",
+            "reviewer_group_id",
+            "reviewer_group_id.all_user_ids",
+            "reviewer_group_id.all_user_ids.active",
+        ]
 
     @api.depends(lambda self: self._get_reviewer_fields())
     def _compute_reviewer_ids(self):
         for rec in self:
-            rec.reviewer_ids = rec._get_reviewers()
+            reviewers = rec._get_reviewers()
+            # Reading the relation with active_test disabled includes archived
+            # users, so this replacement deletes those links. ``reviewers``
+            # itself contains only active users.
+            rec.with_context(active_test=False).reviewer_ids = reviewers
 
     @api.depends("reviewer_ids")
     def _compute_todo_by(self):
@@ -156,15 +165,30 @@ class TierReview(models.Model):
                     todo_by = f"{todo_by} (and {num_users - num_show} more)"
             rec.todo_by = todo_by
 
+    def _users_in_groups(self, groups):
+        """Explicit members plus users of groups that imply these groups.
+
+        ``all_user_ids`` includes archived users. ``search`` keeps active
+        users only, so the ids stored on the review are active users.
+        ``sudo()`` keeps the list complete when the requester cannot read
+        every user.
+        """
+        users = groups.sudo().with_context(active_test=False).all_user_ids
+        return (
+            self.env["res.users"]
+            .with_context(active_test=True)
+            .search([("id", "in", users.ids)])
+        )
+
     def _get_reviewers(self):
-        if self.reviewer_id or self.reviewer_group_id.user_ids:
-            return self.reviewer_id + self.reviewer_group_id.user_ids
+        if self.reviewer_id or self.reviewer_group_id:
+            return self.reviewer_id + self._users_in_groups(self.reviewer_group_id)
         if self.reviewer_field_id:
             resource = self.env[self.model].browse(self.res_id)
             reviewer_field = getattr(resource, self.reviewer_field_id.name, False)
             if reviewer_field:
                 if reviewer_field._name == "res.groups":
-                    return reviewer_field.user_ids
+                    return self._users_in_groups(reviewer_field)
                 elif reviewer_field._name == "res.users":
                     return reviewer_field
                 else:

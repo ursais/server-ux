@@ -6,8 +6,9 @@ from unittest import mock
 
 from lxml import etree
 
+from odoo import Command
 from odoo.exceptions import ValidationError
-from odoo.tests import Form
+from odoo.tests import Form, new_test_user
 from odoo.tests.common import tagged
 
 from ..models.tier_validation import BASE_EXCEPTION_FIELDS as BEF
@@ -1288,6 +1289,40 @@ class TierTierValidation(CommonTierValidation):
 
         # Review_ids should not be copied when duplicating a user
         self.assertFalse(new_user.review_ids.ids)
+
+    def test_35_implied_group_members_can_review(self):
+        """A group with no explicit users still reviews via implying groups."""
+        implied_user = new_test_user(
+            self.env, name="Implied Reviewer", login="implied_reviewer"
+        )
+        archived_user = new_test_user(
+            self.env, name="Archived Reviewer", login="archived_reviewer"
+        )
+        group_a = self.env["res.groups"].create({"name": "Implied target"})
+        self.env["res.groups"].create(
+            {
+                "name": "Implies target",
+                "implied_ids": [Command.link(group_a.id)],
+                "user_ids": [Command.set([implied_user.id, archived_user.id])],
+            }
+        )
+        archived_user.active = False
+        self.assertFalse(group_a.user_ids)
+        self.assertIn(implied_user, group_a.all_user_ids)
+
+        definition = self.tier_def_obj.create(
+            {
+                "model_id": self.tester_model.id,
+                "review_type": "group",
+                "reviewer_group_id": group_a.id,
+                "definition_domain": "[('test_field', '=', 2.5)]",
+            }
+        )
+        test_record = self.test_model.create({"test_field": 2.5})
+        reviews = test_record.request_validation()
+        review = reviews.filtered(lambda r: r.definition_id == definition)
+        self.assertIn(implied_user, review.reviewer_ids)
+        self.assertNotIn(archived_user, review.reviewer_ids)
 
 
 @tagged("at_install")
